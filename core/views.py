@@ -6,6 +6,10 @@ from django.contrib.auth.decorators import login_required
 from .models import Profile, Post, LikePost, FollowersCount
 from itertools import chain
 import random
+from rest_framework import viewsets
+from .models import Profile, Post
+from .serializers import ProfileSerializer, PostSerializer
+from rest_framework.decorators import action
 
 # Create your views here.
 
@@ -245,3 +249,26 @@ def signin(request):
 def logout(request):
     auth.logout(request)
     return redirect('signin')
+
+
+# api
+
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+class ProfileApi(ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+    @action(methods=['GET'], detail=False)
+    def custom_action(self, request):
+        return Response({"message": "Выполняется пользовательское действие GET"})
+
+    @action(methods=['POST'], detail=True)
+    def custom_action_detail(self, request, pk=None):
+        return Response({"message": f"Выполняется пользовательское действие POST для объекта с pk={pk}"})
+
+class PostApi(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
